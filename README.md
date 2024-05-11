@@ -1,2 +1,2 @@
-# projekt_AAW
+# projekt AAW
 mean-shift algorithm 
