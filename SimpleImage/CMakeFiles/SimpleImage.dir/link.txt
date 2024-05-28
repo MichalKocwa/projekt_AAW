@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG -rdynamic   -m64    CMakeFiles/SimpleImage.dir/SimpleImage.cpp.o -o bin/x86_64/Release/SimpleImage  -lOpenCL -lrt
