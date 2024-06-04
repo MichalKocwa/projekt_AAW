@@ -44,19 +44,19 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /snap/cmake/1384/bin/cmake
+CMAKE_COMMAND = /snap/cmake/1390/bin/cmake
 
 # The command to remove a file.
-RM = /snap/cmake/1384/bin/cmake -E rm -f
+RM = /snap/cmake/1390/bin/cmake -E rm -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/michal/Desktop/SimpleImage
+CMAKE_SOURCE_DIR = /home/michal/Desktop/projekt/projekt_AAW/SimpleImage
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/michal/Desktop/SimpleImage
+CMAKE_BINARY_DIR = /home/michal/Desktop/projekt/projekt_AAW/SimpleImage
 
 # Include any dependencies generated for this target.
 include CMakeFiles/SimpleImage.dir/depend.make
@@ -72,16 +72,16 @@ include CMakeFiles/SimpleImage.dir/flags.make
 CMakeFiles/SimpleImage.dir/SimpleImage.cpp.o: CMakeFiles/SimpleImage.dir/flags.make
 CMakeFiles/SimpleImage.dir/SimpleImage.cpp.o: SimpleImage.cpp
 CMakeFiles/SimpleImage.dir/SimpleImage.cpp.o: CMakeFiles/SimpleImage.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/michal/Desktop/SimpleImage/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/SimpleImage.dir/SimpleImage.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/SimpleImage.dir/SimpleImage.cpp.o -MF CMakeFiles/SimpleImage.dir/SimpleImage.cpp.o.d -o CMakeFiles/SimpleImage.dir/SimpleImage.cpp.o -c /home/michal/Desktop/SimpleImage/SimpleImage.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/michal/Desktop/projekt/projekt_AAW/SimpleImage/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/SimpleImage.dir/SimpleImage.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/SimpleImage.dir/SimpleImage.cpp.o -MF CMakeFiles/SimpleImage.dir/SimpleImage.cpp.o.d -o CMakeFiles/SimpleImage.dir/SimpleImage.cpp.o -c /home/michal/Desktop/projekt/projekt_AAW/SimpleImage/SimpleImage.cpp
 
 CMakeFiles/SimpleImage.dir/SimpleImage.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/SimpleImage.dir/SimpleImage.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/michal/Desktop/SimpleImage/SimpleImage.cpp > CMakeFiles/SimpleImage.dir/SimpleImage.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/michal/Desktop/projekt/projekt_AAW/SimpleImage/SimpleImage.cpp > CMakeFiles/SimpleImage.dir/SimpleImage.cpp.i
 
 CMakeFiles/SimpleImage.dir/SimpleImage.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/SimpleImage.dir/SimpleImage.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/michal/Desktop/SimpleImage/SimpleImage.cpp -o CMakeFiles/SimpleImage.dir/SimpleImage.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/michal/Desktop/projekt/projekt_AAW/SimpleImage/SimpleImage.cpp -o CMakeFiles/SimpleImage.dir/SimpleImage.cpp.s
 
 # Object files for target SimpleImage
 SimpleImage_OBJECTS = \
@@ -94,12 +94,12 @@ bin/x86_64/Release/SimpleImage: CMakeFiles/SimpleImage.dir/SimpleImage.cpp.o
 bin/x86_64/Release/SimpleImage: CMakeFiles/SimpleImage.dir/build.make
 bin/x86_64/Release/SimpleImage: /usr/lib/x86_64-linux-gnu/libOpenCL.so
 bin/x86_64/Release/SimpleImage: CMakeFiles/SimpleImage.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/michal/Desktop/SimpleImage/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable bin/x86_64/Release/SimpleImage"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/michal/Desktop/projekt/projekt_AAW/SimpleImage/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable bin/x86_64/Release/SimpleImage"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/SimpleImage.dir/link.txt --verbose=$(VERBOSE)
-	/snap/cmake/1384/bin/cmake -E copy_if_different /home/michal/Desktop/SimpleImage/SimpleImage_Kernels.cl /home/michal/Desktop/SimpleImage/bin/x86_64/Release/.
-	/snap/cmake/1384/bin/cmake -E copy_if_different /home/michal/Desktop/SimpleImage/SimpleImage_Kernels.cl ./
-	/snap/cmake/1384/bin/cmake -E copy_if_different /home/michal/Desktop/SimpleImage/SimpleImage_Input.bmp /home/michal/Desktop/SimpleImage/bin/x86_64/Release/.
-	/snap/cmake/1384/bin/cmake -E copy_if_different /home/michal/Desktop/SimpleImage/SimpleImage_Input.bmp ./
+	/snap/cmake/1390/bin/cmake -E copy_if_different /home/michal/Desktop/projekt/projekt_AAW/SimpleImage/SimpleImage_Kernels.cl /home/michal/Desktop/projekt/projekt_AAW/SimpleImage/bin/x86_64/Release/.
+	/snap/cmake/1390/bin/cmake -E copy_if_different /home/michal/Desktop/projekt/projekt_AAW/SimpleImage/SimpleImage_Kernels.cl ./
+	/snap/cmake/1390/bin/cmake -E copy_if_different /home/michal/Desktop/projekt/projekt_AAW/SimpleImage/SimpleImage_Input.bmp /home/michal/Desktop/projekt/projekt_AAW/SimpleImage/bin/x86_64/Release/.
+	/snap/cmake/1390/bin/cmake -E copy_if_different /home/michal/Desktop/projekt/projekt_AAW/SimpleImage/SimpleImage_Input.bmp ./
 
 # Rule to build all files generated by this target.
 CMakeFiles/SimpleImage.dir/build: bin/x86_64/Release/SimpleImage
@@ -110,6 +110,6 @@ CMakeFiles/SimpleImage.dir/clean:
 .PHONY : CMakeFiles/SimpleImage.dir/clean
 
 CMakeFiles/SimpleImage.dir/depend:
-	cd /home/michal/Desktop/SimpleImage && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/michal/Desktop/SimpleImage /home/michal/Desktop/SimpleImage /home/michal/Desktop/SimpleImage /home/michal/Desktop/SimpleImage /home/michal/Desktop/SimpleImage/CMakeFiles/SimpleImage.dir/DependInfo.cmake "--color=$(COLOR)"
+	cd /home/michal/Desktop/projekt/projekt_AAW/SimpleImage && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/michal/Desktop/projekt/projekt_AAW/SimpleImage /home/michal/Desktop/projekt/projekt_AAW/SimpleImage /home/michal/Desktop/projekt/projekt_AAW/SimpleImage /home/michal/Desktop/projekt/projekt_AAW/SimpleImage /home/michal/Desktop/projekt/projekt_AAW/SimpleImage/CMakeFiles/SimpleImage.dir/DependInfo.cmake "--color=$(COLOR)"
 .PHONY : CMakeFiles/SimpleImage.dir/depend
 

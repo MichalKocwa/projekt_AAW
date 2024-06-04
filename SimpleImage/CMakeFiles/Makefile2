@@ -45,19 +45,19 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /snap/cmake/1384/bin/cmake
+CMAKE_COMMAND = /snap/cmake/1390/bin/cmake
 
 # The command to remove a file.
-RM = /snap/cmake/1384/bin/cmake -E rm -f
+RM = /snap/cmake/1390/bin/cmake -E rm -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/michal/Desktop/SimpleImage
+CMAKE_SOURCE_DIR = /home/michal/Desktop/projekt/projekt_AAW/SimpleImage
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/michal/Desktop/SimpleImage
+CMAKE_BINARY_DIR = /home/michal/Desktop/projekt/projekt_AAW/SimpleImage
 
 #=============================================================================
 # Directory level rules for the build root directory
@@ -81,14 +81,14 @@ clean: CMakeFiles/SimpleImage.dir/clean
 CMakeFiles/SimpleImage.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/SimpleImage.dir/build.make CMakeFiles/SimpleImage.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/SimpleImage.dir/build.make CMakeFiles/SimpleImage.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/michal/Desktop/SimpleImage/CMakeFiles --progress-num=1,2 "Built target SimpleImage"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/michal/Desktop/projekt/projekt_AAW/SimpleImage/CMakeFiles --progress-num=1,2 "Built target SimpleImage"
 .PHONY : CMakeFiles/SimpleImage.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/SimpleImage.dir/rule:
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/michal/Desktop/SimpleImage/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/michal/Desktop/projekt/projekt_AAW/SimpleImage/CMakeFiles 2
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/SimpleImage.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/michal/Desktop/SimpleImage/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/michal/Desktop/projekt/projekt_AAW/SimpleImage/CMakeFiles 0
 .PHONY : CMakeFiles/SimpleImage.dir/rule
 
 # Convenience name for target.

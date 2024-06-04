@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/michal/AMDAPPSDK-3.0/include -I/home/michal/Desktop/SimpleImage/../../../../include/SDKUtil -I/home/michal/AMDAPPSDK-3.0/include/SDKUtil
+CXX_INCLUDES = -I/home/michal/AMDAPPSDK-3.0/include -I/home/michal/Desktop/projekt/projekt_AAW/SimpleImage/../../../../include/SDKUtil -I/home/michal/AMDAPPSDK-3.0/include/SDKUtil
 
 CXX_FLAGS = -O3 -DNDEBUG   -msse2  -m64   
 
