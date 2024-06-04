@@ -135,3 +135,164 @@ __kernel void ms_filter(__read_only image2d_t luv, __write_only image2d_t output
 
     write_imageui(outputImage, coord, outputPixel);
 }
+
+
+__kernel void to_hsv(__read_only image2d_t inputImage, __write_only image2d_t outputImage)
+{
+	int2 coord = (int2)(get_global_id(0), get_global_id(1));
+
+	float4 pixel = (float4)(0);
+
+		pixel = convert_float4(read_imageui(inputImage, imageSampler, (int2)(coord.x, coord.y)));
+
+		pixel.x = pixel.x / 255.0;
+		pixel.y = pixel.y / 255.0;
+		pixel.z = pixel.z / 255.0;
+
+		double cmax = max(pixel.x, max(pixel.y, pixel.z)); 
+		double cmin = min(pixel.x, min(pixel.y, pixel.z)); 
+		double diff = cmax - cmin; 
+		double h = -1, s = -1; 
+
+		if (cmax == cmin) 
+			h = 0; 
+			else if (cmax == pixel.x) 
+			h = fmod(60 * ((pixel.y - pixel.z) / diff) + 360, 360); 
+	
+		else if (cmax == pixel.y) 
+			h = fmod(60 * ((pixel.z - pixel.x) / diff) + 120, 360); 
+	
+		else if (cmax == pixel.z) 
+			h = fmod(60 * ((pixel.x - pixel.y) / diff) + 240, 360); 
+	
+		if (cmax == 0) 
+			s = 0; 
+		else
+			s = (diff / cmax) * 100; 
+
+    	double v = cmax * 100;
+
+		pixel.x = convert_float(h);
+		pixel.y = convert_float(s);
+		pixel.z = convert_float(v);
+		//float wyn = clamp(sum*g, 0.0f, 255.0f);
+		
+		write_imageui(outputImage, coord, convert_uint4(pixel));
+
+}
+
+__kernel void to_LUV(__read_only image2d_t inputImage, __write_only image2d_t outputImage)
+{
+	int2 coord = (int2)(get_global_id(0), get_global_id(1));
+
+	float4 pixel = (float4)(0);
+
+	pixel = convert_float4(read_imageui(inputImage, imageSampler, (int2)(coord.x, coord.y)));
+
+    float r = pixel.x / 255.0f;
+    float g = pixel.y / 255.0f;
+    float b = pixel.z / 255.0f;
+
+    r = (r > 0.04045f) ? pow((r + 0.055f) / 1.055f, 2.4f) : (r / 12.92f);
+    g = (g > 0.04045f) ? pow((g + 0.055f) / 1.055f, 2.4f) : (g / 12.92f);
+    b = (b > 0.04045f) ? pow((b + 0.055f) / 1.055f, 2.4f) : (b / 12.92f);
+
+    float X = r * 0.4124564f + g * 0.3575761f + b * 0.1804375f;
+    float Y = r * 0.2126729f + g * 0.7151522f + b * 0.0721750f;
+    float Z = r * 0.0193339f + g * 0.1191920f + b * 0.9503041f;
+
+    float Xn = 0.95047f;
+    float Yn = 1.0f;
+    float Zn = 1.08883f;
+
+    float u_prime = (4.0f * X) / (X + 15.0f * Y + 3.0f * Z);
+    float v_prime = (9.0f * Y) / (X + 15.0f * Y + 3.0f * Z);
+
+    float Yr = Y / Yn;
+    float L = (Yr > 0.008856f) ? (116.0f * cbrt(Yr) - 16.0f) : (903.3f * Yr);
+    float u = 13.0f * L * (u_prime - 0.1978398f); 
+    float v = 13.0f * L * (v_prime - 0.4683363f); 
+
+    L = clamp(L, 0.0f, 100.0f) * 255.0f / 100.0f;
+    u = clamp(u, -134.0f, 220.0f) + 134.0f;
+    v = clamp(v, -140.0f, 122.0f) + 140.0f;
+
+    pixel.x = L;
+    pixel.y = u;
+    pixel.z = v;
+
+	write_imageui(outputImage, coord, convert_uint4(pixel));
+}
+
+
+__kernel void to_lab(__read_only image2d_t inputImage, __write_only image2d_t outputImage)
+{
+	int2 coord = (int2)(get_global_id(0), get_global_id(1));
+
+	float4 pixel = (float4)(0);
+
+	pixel = convert_float4(read_imageui(inputImage, imageSampler, (int2)(coord.x, coord.y)));
+
+    float r = pixel.x / 255.0f;
+    float g = pixel.y / 255.0f;
+    float b = pixel.z / 255.0f;
+
+    r = (r > 0.04045f) ? pow((r + 0.055f) / 1.055f, 2.4f) : (r / 12.92f);
+    g = (g > 0.04045f) ? pow((g + 0.055f) / 1.055f, 2.4f) : (g / 12.92f);
+    b = (b > 0.04045f) ? pow((b + 0.055f) / 1.055f, 2.4f) : (b / 12.92f);
+
+    float X = r * 0.4124564f + g * 0.3575761f + b * 0.1804375f;
+    float Y = r * 0.2126729f + g * 0.7151522f + b * 0.0721750f;
+    float Z = r * 0.0193339f + g * 0.1191920f + b * 0.9503041f;
+
+    float Xn = 0.95047f;
+    float Yn = 1.0f;
+    float Zn = 1.08883f;
+
+    X /= Xn;
+    Y /= Yn;
+    Z /= Zn;
+
+    X = (X > 0.008856f) ? pow(X, 1.0f/3.0f) : (7.787f * X + 16.0f / 116.0f);
+    Y = (Y > 0.008856f) ? pow(Y, 1.0f/3.0f) : (7.787f * Y + 16.0f / 116.0f);
+    Z = (Z > 0.008856f) ? pow(Z, 1.0f/3.0f) : (7.787f * Z + 16.0f / 116.0f);
+
+    float L = 116.0f * Y - 16.0f;
+    float a = 500.0f * (X - Y);
+    float bb = 200.0f * (Y - Z);
+
+    L = clamp(L, 0.0f, 100.0f) * 255.0f / 100.0f;
+    a = clamp(a, -128.0f, 127.0f) + 128.0f;
+    bb = clamp(bb, -128.0f, 127.0f) + 128.0f;
+
+    pixel.x = L;
+    pixel.y = a;
+    pixel.z = bb;
+
+	write_imageui(outputImage, coord, convert_uint4(pixel));
+}
+
+
+__kernel void to_YCrCb(__read_only image2d_t inputImage, __write_only image2d_t outputImage)
+{
+	int2 coord = (int2)(get_global_id(0), get_global_id(1));
+
+	float4 pixel = (float4)(0);
+
+		pixel = convert_float4(read_imageui(inputImage, imageSampler, (int2)(coord.x, coord.y)));
+
+
+
+		float Y = 0.257 * pixel.x + 0.504 * pixel.y + 0.098 * pixel.z + 16;
+
+		float Cb = -0.148 * pixel.x - 0.291 * pixel.y + 0.439 * pixel.z + 128;
+
+		float Cr = 0.439 * pixel.x - 0.368 * pixel.y - 0.071 * pixel.z + 128;
+
+		pixel.x = Y;
+		pixel.y = Cb;
+		pixel.z = Cr;
+				
+		write_imageui(outputImage, coord, convert_uint4(pixel));
+
+}
