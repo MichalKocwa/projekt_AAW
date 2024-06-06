@@ -181,7 +181,7 @@ __kernel void to_hsv(__read_only image2d_t inputImage, __write_only image2d_t ou
 
 }
 
-__kernel void to_LUV(__read_only image2d_t inputImage, __write_only image2d_t outputImage)
+/*__kernel void to_LUV2(__read_only image2d_t inputImage, __write_only image2d_t outputImage)
 {
 	int2 coord = (int2)(get_global_id(0), get_global_id(1));
 
@@ -222,7 +222,7 @@ __kernel void to_LUV(__read_only image2d_t inputImage, __write_only image2d_t ou
     pixel.z = v;
 
 	write_imageui(outputImage, coord, convert_uint4(pixel));
-}
+}*/
 
 
 __kernel void to_lab(__read_only image2d_t inputImage, __write_only image2d_t outputImage)
@@ -295,4 +295,106 @@ __kernel void to_YCrCb(__read_only image2d_t inputImage, __write_only image2d_t 
 				
 		write_imageui(outputImage, coord, convert_uint4(pixel));
 
+}
+
+
+__kernel void to_LUV(__read_only image2d_t rgb, __write_only image2d_t luv)
+{
+
+
+	int2 coord = (int2)(get_global_id(0), get_global_id(1));
+
+	float4 pixel = (float4)(0);
+
+	pixel = convert_float4(read_imageui(rgb, imageSampler, (int2)(coord.x, coord.y)));
+
+    uchar R = pixel.x;
+    uchar G = pixel.y;
+    uchar B = pixel.z;
+
+    // RGB to LUV conversion logic
+    float var_R = ((float)R) / 255;
+    float var_G = ((float)G) / 255;
+    float var_B = ((float)B) / 255;
+
+    float var_min = min(var_R, min(var_G, var_B));    // Min. value of RGB
+    float var_max = max(var_R, max(var_G, var_B));    // Max. value of RGB
+    float del_Max = var_max - var_min;               // Delta RGB value
+
+    float L, U, V;
+    float var_Y = (var_R + var_G + var_B) / 3.0;
+
+    if (var_max > 0.008856) {
+        L = (116.0 * var_Y) - 16.0;
+    } else {
+        L = 903.3 * var_Y;
+    }
+
+    if (del_Max == 0) {
+        U = 0;
+        V = 0;
+    } else {
+        U = (4 * var_R) / (var_R + (15 * var_G) + (3 * var_B));
+        V = (9 * var_G) / (var_R + (15 * var_G) + (3 * var_B));
+    }
+
+    // Scale to byte range
+    pixel.x = (uchar)(L * 255 / 100);
+    pixel.y = (uchar)((U + 134) * 255 / 354);
+    pixel.z = (uchar)((V + 140) * 255 / 262);
+
+	write_imageui(luv, coord, convert_uint4(pixel));
+
+}
+
+
+__kernel void LUV2RGB(__read_only image2d_t luv, __write_only image2d_t rgb)
+{
+
+    int2 coord = (int2)(get_global_id(0), get_global_id(1));
+
+    // Read the LUV pixel values
+    uint4 luvPixel = read_imageui(luv, imageSampler, coord);
+    
+    // Convert to float and normalize
+    float L = (float)(luvPixel.x) * 100.0f / 255.0f;
+    float u = (float)(luvPixel.y) * 354.0f / 255.0f - 134.0f;
+    float v = (float)(luvPixel.z) * 262.0f / 255.0f - 140.0f;
+
+    // Constants for conversion
+    float Xr = 0.964221f;
+    float Yr = 1.0f;
+    float Zr = 0.825211f;
+    float u0 = 4.0f * Xr / (Xr + 15.0f * Yr + 3.0f * Zr);
+    float v0 = 9.0f * Yr / (Xr + 15.0f * Yr + 3.0f * Zr);
+    float eps = 216.0f / 24389.0f;
+    float k = 24389.0f / 27.0f;
+
+    float Y;
+    if (L > k * eps) {
+        float TEMP = (L + 16.0f) / 116.0f;
+        Y = TEMP * TEMP * TEMP;
+    } else {
+        Y = L / k;
+    }
+
+    float ud = u / (13.0f * L) + u0;
+    float vd = v / (13.0f * L) + v0;
+
+    float X = Y * 9.0f * ud / (4.0f * vd);
+    float Z = Y * (12.0f - 3.0f * ud - 20.0f * vd) / (4.0f * vd);
+
+    // Convert XYZ to RGB
+    float r = 3.2406f * X - 1.5372f * Y - 0.4986f * Z;
+    float g = -0.9689f * X + 1.8758f * Y + 0.0415f * Z;
+    float b = 0.0557f * X - 0.2040f * Y + 1.0570f * Z;
+
+    // Scale to 0-255 and clamp
+    uint4 rgbPixel = (uint4)(clamp((int)(r * 255.0f), 0, 255), 
+                             clamp((int)(g * 255.0f), 0, 255), 
+                             clamp((int)(b * 255.0f), 0, 255), 
+                             255);
+
+    // Write RGB pixel values
+    write_imageui(rgb, coord, rgbPixel);
 }

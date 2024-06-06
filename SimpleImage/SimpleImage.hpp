@@ -31,7 +31,8 @@ using namespace appsdk;
 #define INPUT_IMAGE "SimpleImage_Input.bmp"
 #define OUTPUT_IMAGE "SimpleImage_Output.bmp"
 
-#define GROUP_SIZE 256
+#define GROUP_SIZE 32
+
 
 #ifndef min
 #define min(a, b)            (((a) < (b)) ? (a) : (b))
@@ -71,7 +72,8 @@ class SimpleImage
         cl_kernel kernel3D;                 /**< CL kernel */
 
         cl_kernel kernelFilter;                 /**< CL kernel */
-
+        cl_kernel kernel2LUV;                 /**< CL kernel */
+        cl_kernel kernelLUV2RGB;
 
         SDKBitMap inputBitmap;   /**< Bitmap class object */
         uchar4* pixelData;       /**< Pointer to image data */

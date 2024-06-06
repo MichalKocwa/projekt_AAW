@@ -75,7 +75,7 @@ SimpleImage::readInputImage(std::string inputImageName)
     // Copy pixel data into inputImageData
     memset(modifyImageOut, 0, width * height * pixelSize);
 
-    memcpy(modifyImage, pixelData, width * height * pixelSize);
+    //memcpy(modifyImage, outputImageData2D, width * height * pixelSize);
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // allocate memory for verification output
@@ -91,15 +91,19 @@ SimpleImage::readInputImage(std::string inputImageName)
 }
 
 
+
+
 int
 SimpleImage::writeOutputImage(std::string outputImageName)
 {
     // copy output image data back to original pixel data   //modifyImage   
     //memcpy(pixelData, outputImageData2D, width * height * pixelSize);
 
+    //memcpy(pixelData, outputImageData3D, width * height * pixelSize);
     memcpy(pixelData, modifyImageOut, width * height * pixelSize);
+
     
-    // write the output bmp file
+    // write the output bmp file 
     if(!inputBitmap.write(outputImageName.c_str()))
     {
         std::cout << "Failed to write output image!";
@@ -182,6 +186,12 @@ SimpleImage::setupCL()
     status = deviceInfo.setDeviceInfo(devices[sampleArgs->deviceId]);
     CHECK_OPENCL_ERROR(status, "deviceInfo.setDeviceInfo failed");
 
+
+    	size_t maxWorkGroupSize;
+	clGetDeviceInfo(devices[sampleArgs->deviceId], CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(size_t), &maxWorkGroupSize, NULL);
+	printf("Max work-group size: %zu\n", maxWorkGroupSize);
+
+
     if(!deviceInfo.imageSupport)
     {
         OPENCL_EXPECTED_ERROR(" Expected Error: Device does not support Images");
@@ -257,13 +267,13 @@ SimpleImage::setupCL()
     imageDesc.image_height = height / 2;
     imageDesc.image_depth = 2;
 
-    inputImage3D = clCreateImage(context,
-                                 CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR,
-                                 &imageFormat,
-                                 &imageDesc,
-                                 inputImageData,
-                                 &status);
-    CHECK_OPENCL_ERROR(status,"clCreateImage failed. (inputImage3D)");
+    //inputImage3D = clCreateImage(context,
+    //                             CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR,
+    //                             &imageFormat,
+    //                             &imageDesc,
+    //                             inputImageData,
+    //                             &status);
+    //CHECK_OPENCL_ERROR(status,"clCreateImage failed. (inputImage3D)");
 
     // create a CL program using the kernel source
     buildProgramData buildData;
@@ -287,6 +297,13 @@ SimpleImage::setupCL()
     // get a kernel object handle for a kernel with the given name
     kernel2D = clCreateKernel(program, "image2dCopy", &status);
     CHECK_OPENCL_ERROR(status,"clCreateKernel failed.(kernel2D)");
+
+    kernel2LUV = clCreateKernel(program, "to_LUV", &status);
+    CHECK_OPENCL_ERROR(status,"clCreateKernel failed.(to_LUV)");
+
+    kernelLUV2RGB = clCreateKernel(program, "LUV2RGB", &status);
+    CHECK_OPENCL_ERROR(status,"clCreateKernel failed.(LUV2RGB)");
+
 
     kernel3D = clCreateKernel(program, "image3dCopy", &status);
     CHECK_OPENCL_ERROR(status,"clCreateKernel failed.(kernel3D)");
@@ -314,6 +331,22 @@ SimpleImage::setupCL()
 
     /////////////////////////////////////////////////////////////////////////////////
     status = clGetKernelWorkGroupInfo(kernelFilter,
+                                      devices[sampleArgs->deviceId],
+                                      CL_KERNEL_WORK_GROUP_SIZE,
+                                      sizeof(size_t),
+                                      &kernel2DWorkGroupSize,
+                                      0);
+    CHECK_OPENCL_ERROR(status,"clGetKernelWorkGroupInfo  failed.");
+
+    status = clGetKernelWorkGroupInfo(kernel2LUV,
+                                      devices[sampleArgs->deviceId],
+                                      CL_KERNEL_WORK_GROUP_SIZE,
+                                      sizeof(size_t),
+                                      &kernel2DWorkGroupSize,
+                                      0);
+    CHECK_OPENCL_ERROR(status,"clGetKernelWorkGroupInfo  failed.");
+
+    status = clGetKernelWorkGroupInfo(kernelLUV2RGB,
                                       devices[sampleArgs->deviceId],
                                       CL_KERNEL_WORK_GROUP_SIZE,
                                       sizeof(size_t),
@@ -355,7 +388,7 @@ SimpleImage::runCLKernels()
 
     // input buffer image
     status = clSetKernelArg(
-                 kernel2D,
+                 kernel2LUV,
                  0,
                  sizeof(cl_mem),
                  &inputImage2D);
@@ -363,7 +396,7 @@ SimpleImage::runCLKernels()
 
     // outBuffer image
     status = clSetKernelArg(
-                 kernel2D,
+                 kernel2LUV,
                  1,
                  sizeof(cl_mem),
                  &outputImage2D);
@@ -372,11 +405,11 @@ SimpleImage::runCLKernels()
     // Set appropriate arguments to the kernel3D
 
     // input buffer image
-    status = clSetKernelArg(kernel3D,
-                            0,
-                            sizeof(cl_mem),
-                            &inputImage3D);
-    CHECK_OPENCL_ERROR(status,"clSetKernelArg failed. (inputImage3D)");
+    //status = clSetKernelArg(kernel3D,
+    //                        0,
+    //                        sizeof(cl_mem),
+    //                        &inputImage3D);
+    //CHECK_OPENCL_ERROR(status,"clSetKernelArg failed. (inputImage3D)");
 
     // outBuffer image
     status = clSetKernelArg(
@@ -388,11 +421,15 @@ SimpleImage::runCLKernels()
 
     ////////////////////////////////////////////////////////////////////////////////////////// 7 6.5 10 
 
+    //memset(modifyImageOut, outputImageData2D, width * height * pixelSize);
+
+
+
     status = clSetKernelArg(
                  kernelFilter,
                  0,
                  sizeof(cl_mem),
-                 &inputModify);
+                 &outputImage2D);
     CHECK_OPENCL_ERROR(status,"clSetKernelArg failed. (inputModify)");
 
     status = clSetKernelArg(
@@ -404,6 +441,22 @@ SimpleImage::runCLKernels()
 
 
 
+    status = clSetKernelArg(
+                 kernelLUV2RGB,
+                 0,
+                 sizeof(cl_mem),
+                 &outputModify);
+    CHECK_OPENCL_ERROR(status,"clSetKernelArg failed. (outputModify)");
+
+    // outBuffer image
+    status = clSetKernelArg(
+                 kernelLUV2RGB,
+                 1,
+                 sizeof(cl_mem),
+                 &outputImage3D);
+    CHECK_OPENCL_ERROR(status,"clSetKernelArg failed. (outputImageData3D)");
+
+
     // Enqueue a kernel run call.
     size_t globalThreads[] = {width, height};
     size_t localThreads[] = {blockSizeX, blockSizeY};
@@ -411,7 +464,7 @@ SimpleImage::runCLKernels()
     //size_t localThreads[] = {blockSizeX, blockSizeY};
     status = clEnqueueNDRangeKernel(
                  commandQueue,
-                 kernel2D,
+                 kernel2LUV,
                  2,
                  NULL,
                  globalThreads,
@@ -421,23 +474,36 @@ SimpleImage::runCLKernels()
                  0);
     CHECK_OPENCL_ERROR(status,"clEnqueueNDRangeKernel failed.");
 
-    status = clEnqueueNDRangeKernel(
-                 commandQueue,
-                 kernel3D,
-                 2,
-                 NULL,
-                 globalThreads,
-                 localThreads,
-                 0,
-                 NULL,
-                 0);
-    CHECK_OPENCL_ERROR(status,"clEnqueueNDRangeKernel failed.");
+    //status = clEnqueueNDRangeKernel(
+    //             commandQueue,
+    //             kernel3D,
+    //             2,
+    //             NULL,
+    //             globalThreads,
+    //             localThreads,
+    //             0,
+    //             NULL,
+    //             0);
+    //CHECK_OPENCL_ERROR(status,"clEnqueueNDRangeKernel failed.");
 
 
 
     status = clEnqueueNDRangeKernel(
                  commandQueue,
                  kernelFilter,
+                 2,
+                 NULL,
+                 globalThreads,
+                 localThreads,
+                 0,
+                 NULL,
+                 0);
+    CHECK_OPENCL_ERROR(status,"clEnqueueNDRangeKernel failed.");
+
+
+    status = clEnqueueNDRangeKernel(
+                 commandQueue,
+                 kernelLUV2RGB,
                  2,
                  NULL,
                  globalThreads,
@@ -466,17 +532,7 @@ SimpleImage::runCLKernels()
                                 0, 0, 0);
     CHECK_OPENCL_ERROR(status,"clEnqueueReadImage failed.");
 
-    // Read output of 3D copy
-    status = clEnqueueReadImage(commandQueue,
-                                outputImage3D,
-                                1,
-                                origin,
-                                region,
-                                0,
-                                0,
-                                outputImageData3D,
-                                0, 0, 0);
-    CHECK_OPENCL_ERROR(status,"clEnqueueReadImage failed.");
+
 
 
         // Read output of filterd 
@@ -488,6 +544,18 @@ SimpleImage::runCLKernels()
                                 0,
                                 0,
                                 modifyImageOut,
+                                0, 0, 0);
+    CHECK_OPENCL_ERROR(status,"clEnqueueReadImage failed.");
+
+    // Read output of 3D copy
+    status = clEnqueueReadImage(commandQueue,
+                                outputImage3D,
+                                1,
+                                origin,
+                                region,
+                                0,
+                                0,
+                                outputImageData3D,
                                 0, 0, 0);
     CHECK_OPENCL_ERROR(status,"clEnqueueReadImage failed.");
 
@@ -597,7 +665,7 @@ SimpleImage::cleanup()
         return SDK_SUCCESS;
     }
 
-    // Releases OpenCL resources (Context, Memory etc.)
+    // Releases OpenCL resources (Context, Memory etc.) 
     cl_int status;
 
     status = clReleaseKernel(kernel2D);
@@ -614,6 +682,12 @@ SimpleImage::cleanup()
 
     ////////////////////////////////////////////////////////////
 
+    status = clReleaseKernel(kernel2LUV);
+    CHECK_OPENCL_ERROR(status,"clReleaseKernel failed.(kernel2LUV)");
+
+    status = clReleaseKernel(kernelFilter);
+    CHECK_OPENCL_ERROR(status,"clReleaseKernel failed.(kernelFilter)");
+
     status = clReleaseMemObject(inputModify);
     CHECK_OPENCL_ERROR(status,"clReleaseMemObject failed.(inputModify)");
 
@@ -625,8 +699,8 @@ SimpleImage::cleanup()
     status = clReleaseMemObject(outputImage2D);
     CHECK_OPENCL_ERROR(status,"clReleaseMemObject failed.(outputImage2D)");
 
-    status = clReleaseMemObject(inputImage3D);
-    CHECK_OPENCL_ERROR(status,"clReleaseMemObject failed.(inputImage3D)");
+    //status = clReleaseMemObject(inputImage3D);
+    //CHECK_OPENCL_ERROR(status,"clReleaseMemObject failed.(inputImage3D)");
 
     status = clReleaseMemObject(outputImage3D);
     CHECK_OPENCL_ERROR(status,"clReleaseMemObject failed.(outputImage3D)");
@@ -725,6 +799,8 @@ main(int argc, char * argv[])
 {
     int status = 0;
     SimpleImage clSimpleImage;
+    
+
 
     if (clSimpleImage.initialize() != SDK_SUCCESS)
     {
