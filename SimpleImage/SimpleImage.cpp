@@ -99,8 +99,8 @@ SimpleImage::writeOutputImage(std::string outputImageName)
     // copy output image data back to original pixel data   //modifyImage   
     //memcpy(pixelData, outputImageData2D, width * height * pixelSize);
 
-    //memcpy(pixelData, outputImageData3D, width * height * pixelSize);
-    memcpy(pixelData, modifyImageOut, width * height * pixelSize);
+    memcpy(pixelData, outputImageData3D, width * height * pixelSize);
+    //memcpy(pixelData, modifyImageOut, width * height * pixelSize);
 
     
     // write the output bmp file 

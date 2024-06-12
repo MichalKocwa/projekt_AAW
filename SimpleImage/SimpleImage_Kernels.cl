@@ -351,50 +351,70 @@ __kernel void to_LUV(__read_only image2d_t rgb, __write_only image2d_t luv)
 __kernel void LUV2RGB(__read_only image2d_t luv, __write_only image2d_t rgb)
 {
 
-    int2 coord = (int2)(get_global_id(0), get_global_id(1));
+     int2 coord = (int2)(get_global_id(0), get_global_id(1));
 
-    // Read the LUV pixel values
+    // Read LUV pixel values
     uint4 luvPixel = read_imageui(luv, imageSampler, coord);
-    
-    // Convert to float and normalize
-    float L = (float)(luvPixel.x) * 100.0f / 255.0f;
-    float u = (float)(luvPixel.y) * 354.0f / 255.0f - 134.0f;
-    float v = (float)(luvPixel.z) * 262.0f / 255.0f - 140.0f;
 
-    // Constants for conversion
-    float Xr = 0.964221f;
-    float Yr = 1.0f;
-    float Zr = 0.825211f;
-    float u0 = 4.0f * Xr / (Xr + 15.0f * Yr + 3.0f * Zr);
-    float v0 = 9.0f * Yr / (Xr + 15.0f * Yr + 3.0f * Zr);
-    float eps = 216.0f / 24389.0f;
-    float k = 24389.0f / 27.0f;
+    int LL = (int)luvPixel.x;
+    int uu = (int)luvPixel.y;
+    int vv = (int)luvPixel.z;
 
-    float Y;
-    if (L > k * eps) {
-        float TEMP = (L + 16.0f) / 116.0f;
+    float L = (float)(LL * 100.0f / 255.0f);
+    float u = (float)((uu) * 354.0f / 255.0f - 134);
+    float v = (float)((vv) * 262.0f / 255.0f - 140);
+
+
+    float X, Y, Z, ud, vd, u0, v0, TEMP, L1;
+    int r, g, b;
+    float eps = 216.0 / 24389.0;
+    float k = 24389.0 / 27.0;
+    float Xr = 0.964221;
+    float Yr = 1.0;
+    float Zr = 0.825211;
+
+    u0 = 4.0 * Xr / (Xr + 15.0 * Yr + 3.0 * Zr);
+    v0 = 9.0 * Yr / (Xr + 15.0 * Yr + 3.0 * Zr);
+    L1 = ((float)(L)) / 1.0;
+    if((float)(L1) > k * eps)
+    {
+        TEMP = (((float)(L1) + 16.0) / 116.0);
         Y = TEMP * TEMP * TEMP;
-    } else {
-        Y = L / k;
+    }
+    else
+    {
+        Y = ((float)(L1)) / k;
+    }
+    if((L == 0) && (u == 0) && (v == 0))
+    {
+        X = 0;
+        Y = 0;
+        Z = 0;
+    }
+    else
+    {
+        ud = (u / (13.0 * L1) + u0);
+        vd = (v / (13.0 * L1) + v0);
+        X = (ud / vd) * Y * 9.0 / 4.0;
+        Z = (Y / vd - ((ud / vd) * Y / 4.0 + 15.0 * Y / 9.0)) * 3.0;
     }
 
-    float ud = u / (13.0f * L) + u0;
-    float vd = v / (13.0f * L) + v0;
+    X = X * 255.0;
+    Y = Y * 255.0;
+    Z = Z * 255.0;
 
-    float X = Y * 9.0f * ud / (4.0f * vd);
-    float Z = Y * (12.0f - 3.0f * ud - 20.0f * vd) / (4.0f * vd);
+    r = (int)(3.2404813432005 * X - 1.5371515162713 * Y - 0.49853632616889 * Z + 0.5);
+    g = (int)(-0.96925494999657 * X + 1.8759900014899 * Y + 0.041555926558293 * Z + 0.5);
+    b = (int)(0.055646639135177 * X - 0.20404133836651 * Y + 1.0573110696453 * Z + 0.5);
 
-    // Convert XYZ to RGB
-    float r = 3.2406f * X - 1.5372f * Y - 0.4986f * Z;
-    float g = -0.9689f * X + 1.8758f * Y + 0.0415f * Z;
-    float b = 0.0557f * X - 0.2040f * Y + 1.0570f * Z;
-
-    // Scale to 0-255 and clamp
-    uint4 rgbPixel = (uint4)(clamp((int)(r * 255.0f), 0, 255), 
-                             clamp((int)(g * 255.0f), 0, 255), 
-                             clamp((int)(b * 255.0f), 0, 255), 
-                             255);
+    int R = r < 0 ? 0 : r > 255 ? 255 : r;
+    int G = g < 0 ? 0 : g > 255 ? 255 : g;
+    int B = b < 0 ? 0 : b > 255 ? 255 : b;
 
     // Write RGB pixel values
-    write_imageui(rgb, coord, rgbPixel);
+    write_imageui(rgb, coord, (uint4)(R, G, B, 255));
+
+
 }
+
+
