@@ -225,7 +225,7 @@ SimpleImage::setupCL()
     CHECK_OPENCL_ERROR(status,"clCreateImage failed. (inputModify)");
 
     outputModify = clCreateImage(context,
-                                  CL_MEM_WRITE_ONLY,
+                                  CL_MEM_READ_WRITE,
                                   &imageFormat,
                                   &imageDesc,
                                   0,
@@ -244,7 +244,7 @@ SimpleImage::setupCL()
 
     // Create 2D output image
     outputImage2D = clCreateImage(context,
-                                  CL_MEM_WRITE_ONLY,
+                                  CL_MEM_READ_WRITE,
                                   &imageFormat,
                                   &imageDesc,
                                   0,
@@ -253,7 +253,7 @@ SimpleImage::setupCL()
 
     // Writes to 3D images not allowed in spec currently
     outputImage3D = clCreateImage(context,
-                                  CL_MEM_WRITE_ONLY,
+                                  CL_MEM_READ_WRITE,
                                   &imageFormat,
                                   &imageDesc,
                                   0,
